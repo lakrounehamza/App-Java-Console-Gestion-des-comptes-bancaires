@@ -19,4 +19,17 @@ public class Bank {
         this.listeCompt = new HashMap<String, Compt>();
         listInterdte = new ArrayList<String>();
     }
+
+    public List getListInterdte() {
+        return listInterdte;
+    }
+    public HashMap getListeCompt (){
+        return   this.listeCompt;
+    }
+    public   void  setListeCompt(HashMap list){
+        this.listeCompt =  list;
+    }
+    public  void   setListInterdte(List  list){
+        this.listInterdte   =   list;
+    }
 }
