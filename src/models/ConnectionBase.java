@@ -11,7 +11,7 @@ public class ConnectionBase {
     private final String username = "root";
     private final String password = "lakroune";
 
-     private ConnectionBase() {
+    private ConnectionBase() {
         try {
              Class.forName("com.mysql.cj.jdbc.Driver");
              this.connection = DriverManager.getConnection(url, username, password);
@@ -24,14 +24,12 @@ public class ConnectionBase {
             e.printStackTrace();
         }
     }
-
     public static ConnectionBase getInstance() {
         if (instance == null) {
             instance = new ConnectionBase();
         }
         return instance;
     }
-
     public Connection getConnection() {
         return connection;
     }

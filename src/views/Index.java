@@ -144,13 +144,12 @@ public class Index {
 
 
         System.out.print("entre le     montant  :");
-        montant = Double.parseDouble(scan.nextLine());
+        //montant = Double.parseDouble(scan.nextLine());
+        montant = scan.nextDouble();
         System.out.print("trmine "+montant);
-
-
         operationController.createRetrait(distination, compteConnect, montant);
-        Compte compte = (Compte) comptes.get(compteConnect);
-        compteController.updateSolde(compte,  montant);
+        //Compte compte = (Compte) comptes.get(compteConnect);
+        //compteController.updateSolde(compte,  montant);
     }
 
 }

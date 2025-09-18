@@ -18,12 +18,12 @@ public class CompteService {
         HashMap<String, Compte> listeCompt = new HashMap<>();
         try {
             Connection connection = ConnectionBase.getInstance().getConnection();
-            String request1 = "select c.code, c.sode, e.decouvert from comptes c join comptecourants e on c.code = e.code;";
+            String request1 = "select c.code, c.solde, e.decouvert from comptes c join comptecourants e on c.code = e.code;";
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(request1);
             while (rs.next()) {
                 String code = rs.getString("code");
-                double solde = rs.getDouble("sode");
+                double solde = rs.getDouble("solde");
                 double decouvert = rs.getDouble("decouvert");
 
                 CompteCourant compte = new CompteCourant(code);
@@ -32,12 +32,12 @@ public class CompteService {
 
                 listeCompt.put(code, compte);
             }
-            String request2 = "select c.code, c.sode, e.tauxInteret from comptes c join compteepargne e on c.code = e.code;";
+            String request2 = "select c.code, c.solde, e.tauxInteret from comptes c join compteepargne e on c.code = e.code;";
             ResultSet rs2 = stmt.executeQuery(request2);
 
             while (rs2.next()) {
                 String code = rs2.getString("code");
-                double solde = rs2.getDouble("sode");
+                double solde = rs2.getDouble("solde");
                 double tauxInteret = rs2.getDouble("tauxInteret");
 
                 CompteEpargne compte = new CompteEpargne(code, tauxInteret);

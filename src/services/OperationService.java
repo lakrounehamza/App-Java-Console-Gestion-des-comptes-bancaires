@@ -18,18 +18,19 @@ public class OperationService {
         try {
             Connection connection = ConnectionBase.getInstance().getConnection();
             Statement stmt = connection.createStatement();
-            String query = "select o.numero, o.montant, o.dateOperation, r.distination from operations o join retrait r on r.id = o.numero where o.code = '" + code + "'";
+            String query = "select o.numero, o.montant, o.dateOperation, r.destination from operations o join retrait r on r.numero = o.numero where o.code = '" + code + "'";
             ResultSet res = stmt.executeQuery(query);
             while (res.next()) {
                 Retrait retrait = new Retrait(
                         res.getInt("numero"),
                         res.getDouble("montant"),
                         res.getDate("dateOperation"),
-                        res.getString("distination")
+                        res.getString("destination")
                 );
+                System.out.print(retrait.toString());
                 list.add(retrait);
             }
-            String sqlVersement = "select o.numero, o.montant, o.dateOperation, r.source  from operations o join versement r ON r.id = o.numero where o.code = '" + code + "'";
+            String sqlVersement = "select o.numero, o.montant, o.dateOperation, r.source  from operations o join versement r ON r.numero = o.numero where o.code = '" + code + "'";
             res = stmt.executeQuery(sqlVersement);
             while (res.next()) {
                 Versement versement = new Versement(
@@ -38,6 +39,7 @@ public class OperationService {
                         res.getDate("dateOperation"),
                         res.getString("source")
                 );
+                System.out.print(versement.toString());
                 list.add(versement);
             }
         } catch (SQLException e) {
@@ -49,23 +51,32 @@ public class OperationService {
     public void createRetrait(String distination , String code, double montant) {
         int numero = 0;
         LocalDateTime myDateObj = LocalDateTime.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = myDateObj.format(myFormatObj);
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(code);
-        while (matcher.find()) {
-            numero = Integer.parseInt(matcher.group());
-        }
+//        Pattern pattern = Pattern.compile("\\d+");
+//        Matcher matcher = pattern.matcher(code);
+//        while (matcher.find()) {
+//            numero = Integer.parseInt(matcher.group());
+//        }
 
         try {
             Connection connection = ConnectionBase.getInstance().getConnection();
             Statement stmt = connection.createStatement();
-            stmt.executeQuery("insert  into   retrait  values(" + numero + "," + distination + ")");
-            stmt.executeQuery("insert  into  operations values(" + numero + "," + code + "," + montant + "," + formattedDate + ")");
+            String sql = "INSERT INTO operations (code, montant, dateOperation) " +
+                    "VALUES ('" + code + "', " + montant + ", '" + formattedDate + "')";
+            stmt.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = stmt.getGeneratedKeys();
+            int numero2 = 0;
+            if (rs.next()) {
+                numero2 = rs.getInt(1);
+            }
+            String query = "INSERT INTO retrait (numero, destination) VALUES (" + numero2 + ", '" + distination + "')";
+            stmt.executeUpdate(query);
             stmt.close();
         } catch (SQLException e) {
             System.out.print(e.getMessage());
         }
+
     }
 
     public void createVersement(String source , String code, double montant) {
