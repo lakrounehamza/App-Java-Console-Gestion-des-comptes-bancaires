@@ -132,6 +132,7 @@ public class Index {
                     ;
                     break;
                 case 2:operationRetrait();break;
+                case 3:operationVersement();break;
             }
         } while (choix < 1 || choix > 6);
     }
@@ -152,5 +153,19 @@ public class Index {
         //compteController.updateSolde(compte,  montant);
     }
 
+    public void operationVersement() {
+        double montant = 0;
+        scan.nextLine();
+        System.out.print("Entrez la source : ");
+        String source = scan.nextLine();
+
+        System.out.print("Entrez le montant : ");
+        montant = scan.nextDouble();
+        System.out.println("Montant saisi : " + montant);
+        operationController.createVersement(source, compteConnect, montant);
+
+//         Compte compte = (Compte) comptes.get(compteConnect);
+//         compteController.updateSolde(compte, montant);
+    }
 }
 
