@@ -79,22 +79,30 @@ public class OperationService {
 
     }
 
-    public void createVersement(String source , String code, double montant) {
-        int numero = 0;
+    public void createVersement(String source, String code, double montant) {
         LocalDateTime myDateObj = LocalDateTime.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = myDateObj.format(myFormatObj);
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(code);
-        while (matcher.find()) {
-            numero = Integer.parseInt(matcher.group());
-        }
         try {
             Connection connection = ConnectionBase.getInstance().getConnection();
-            Statement stmt = connection.createStatement();
-            stmt.executeQuery("insert  into   versement  values(" + numero + "," + source + ")");
-            stmt.executeQuery("insert  into  operations values(" + numero + "," + code + "," + montant + "," + formattedDate + ")");
-            stmt.close();
+            String sqlOp = "INSERT INTO operations (code, montant, dateOperation) VALUES (?, ?, ?)";
+            PreparedStatement psOp = connection.prepareStatement(sqlOp, Statement.RETURN_GENERATED_KEYS);
+            psOp.setString(1, code);
+            psOp.setDouble(2, montant);
+            psOp.setString(3, formattedDate);
+            psOp.executeUpdate();
+            ResultSet rs = psOp.getGeneratedKeys();
+            int numero = 0;
+            if (rs.next()) {
+                numero = rs.getInt(1);
+            }
+            String sqlVers = "INSERT INTO versement (numero, source) VALUES (?, ?)";
+            PreparedStatement psVers = connection.prepareStatement(sqlVers);
+            psVers.setInt(1, numero);
+            psVers.setString(2, source);
+            psVers.executeUpdate();
+            psOp.close();
+            psVers.close();
         } catch (SQLException e) {
             System.out.print(e.getMessage());
         }
