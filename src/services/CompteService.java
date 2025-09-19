@@ -5,9 +5,7 @@ import models.CompteCourant;
 import models.CompteEpargne;
 import models.ConnectionBase;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +44,6 @@ public class CompteService {
                 listeCompt.put(code, compte);
             }
 
-            stmt.close();
 //            System.out.println("Database connected avec succès !");
         } catch (Exception e) {
             System.out.println("Erreur: " + e.getMessage());
@@ -56,49 +53,63 @@ public class CompteService {
         return listeCompt;
     }
 
-    public void createCompte(String typeCompt, double value) {
-        ArrayList<String> listInterdte = new ArrayList<>();
+    public String createCompte(String typeCompt, double value) {
+        ArrayList<String> listInterdite = new ArrayList<>();
         Random rand = new Random();
-        String newCode;
-        try (BufferedReader reader = new BufferedReader(new FileReader("dataFichier"))) {
+        String newCode ="";
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("dataFichier.txt"))) {
             String ligne;
             while ((ligne = reader.readLine()) != null) {
-                listInterdte.add(ligne);
+                listInterdite.add(ligne.trim());
             }
+//            reader.close();
             while (true) {
                 newCode = "CPT-" + String.format("%05d", rand.nextInt(100000));
-                if (!listInterdte.contains(newCode))
+                if (!listInterdite.contains(newCode)) {
                     break;
+                }
             }
-            String query = "";
-            if (typeCompt == "compte Epargne") {
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("dataFichier.txt", true))) {
+                writer.write(newCode);
+                writer.newLine();
+//                writer.close();
+            }
+
+            String query;
+            if ("compte Epargne".equals(typeCompt)) {
                 CompteEpargne compt = new CompteEpargne(newCode, value);
-                query = "insert  into   CompteEpargne  values  (" + compt.getCode() + "," + compt.getTauxInteret() + ")";
-            } else {
+                query = "CALL insertCompteEpargne('" + newCode + "',"+ 0.00+"," + value + " );";
+                try (Connection connection = ConnectionBase.getInstance().getConnection();
+                     Statement stmt = connection.createStatement()) {
+                    stmt.executeUpdate(query);
+
+                } catch (SQLException e) {
+                    System.out.print("SQL Error: !!!! " + e.getMessage());
+                }
+             } else {
                 CompteCourant compt = new CompteCourant(newCode, value);
-                query ="insert into  CompteCourant values (" +compt.getCode()+","+compt.getDecouvert()+");";
-            }
-            try {
-                Connection connection = ConnectionBase.getInstance().getConnection();
-                Statement stmt = connection.createStatement();
-
-                stmt.executeQuery("inset  into  comptes  values(" + newCode + "," + "0");
-                stmt.executeQuery(query);
-                stmt.close();
-
-            } catch (SQLException e) {
-                System.out.print(e.getMessage());
-            }
+                query = "CALL insertCompteCourant('" + newCode + "',"+ 0.00+"," + value + ");";
+                try (Connection connection = ConnectionBase.getInstance().getConnection();
+                     Statement stmt = connection.createStatement()) {
+                    stmt.executeUpdate(query);
+                    stmt.close();
+                } catch (SQLException e) {
+                    System.out.print("SQL Error: !!!! " + e.getMessage());
+                }
+             }
 
         } catch (IOException e) {
-            System.out.print("error" + e.getMessage());
+            System.out.print("IO Error:  " + e.getMessage());
         }
+        return  newCode;
     }
 
     public void upadateSolde(String codeCompte, double newSolde) {
         Connection connection = ConnectionBase.getInstance().getConnection();
         try {
-            PreparedStatement stmt = connection.prepareStatement("update  comptes   set  sode = ? where code  =?");
+            PreparedStatement stmt = connection.prepareStatement("update  comptes   set  solde = ? where code  =?");
             stmt.setDouble(1, newSolde);
             stmt.setString(2, codeCompte);
             stmt.executeUpdate();

@@ -18,8 +18,8 @@ public class CompteController {
         this.serviceOp   =  new OperationService();
     }
 
-    public void createCompte(String typeCompt, double value) {
-        this.service.createCompte(typeCompt, value);
+    public String createCompte(String typeCompt, double value) {
+        return this.service.createCompte(typeCompt, value);
     }
 
     public HashMap getAllCompt() {
