@@ -32,6 +32,7 @@ public class Index {
         do {
             System.out.print("donnez  moi  votre le choix : ");
             choix = scan.nextInt();
+            scan.nextLine();
         } while (choix != 1 && choix != 2 && choix != -1);
         if (choix == -1) {
             System.exit(0);

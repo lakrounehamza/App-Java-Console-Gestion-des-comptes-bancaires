@@ -28,18 +28,21 @@ public class CompteEpargne extends Compte {
     }
 
     public void retirer(double montant) {
-        if (solde < montant) {
-            System.out.print("Erreur : solde insuffisant pour effectuer cette opération ");
-        } else {
+        try{
+            if (solde < montant)
+                throw  new Exception();
+
             solde -= montant;
-            System.out.print("Opération effectuée avec succès");
+        }catch (Exception e){
+
+            System.out.print("Erreur : solde insuffisant pour effectuer cette opération ");
         }
     }
 
 
     @Override
     public double calculerInteret() {
-        return solde * tauxInteret / 100;
+        return solde +solde * tauxInteret / 100;
     }
 
     public void afficherDetails() {
@@ -47,6 +50,7 @@ public class CompteEpargne extends Compte {
         System.out.println(" \t\t type de compte\t\t: compte Epargne");
         System.out.println(toString());
         System.out.print("tauxInteret   de  compte  :"+tauxInteret);
+        System.out.println("Solde  + Interet : "+this.calculerInteret());
 
     }
 

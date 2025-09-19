@@ -28,6 +28,15 @@ public class CompteCourant extends Compte {
     }
 
     public void retirer(double montant) {
+        try{
+            if((decouvert+solde)>montant )
+                solde -=montant;
+            else
+                throw  new Exception("Solde insuffisant pour retirer ");
+
+        }catch (Exception e){
+            System.out.print("!! Solde insuffisant pour retirer ");
+        }
     }
 
     public double calculerInteret() {
