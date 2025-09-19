@@ -1,4 +1,4 @@
-package Models;
+package models;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -7,7 +7,6 @@ public class ConnectionBase {
     private static ConnectionBase instance;
     private Connection connection;
 
-    // Paramètres de connexion
     private final String url = "jdbc:mysql://localhost:3306/banque";
     private final String username = "root";
     private final String password = "lakroune";
